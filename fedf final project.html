@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyTable - Reservation System</title>
+    
+    <style>
+        /* --- Global Styles & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #F97316; /* Warm Orange */
+            --primary-hover: #EA580C;
+            --dark-color: #1F2937;
+            --light-color: #F9FAFB;
+            --text-color: #374151;
+            --border-color: #D1D5DB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        button, .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover, .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--dark-color);
+        }
+        .btn-secondary:hover {
+            background-color: #374151;
+        }
+
+        h1, h2, h3 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        h1 { font-size: 3rem; }
+        h2 { font-size: 2.25rem; }
+        h3 { font-size: 1.5rem; }
+
+        /* --- Page Navigation --- */
+        .page {
+            display: none; /* All pages are hidden by default */
+            padding: 40px 0;
+        }
+        .page.active {
+            display: block; /* The active page is shown */
+        }
+
+        /* --- Header / Navbar --- */
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .navbar nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        .navbar nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .navbar nav a:hover {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+        .navbar nav .btn {
+            margin-left: 16px;
+            padding: 10px 20px;
+        }
+
+        /* --- Main Content (Padded for fixed navbar) --- */
+        main {
+            padding-top: 80px; /* Offset for fixed navbar */
+            min-height: calc(100vh - 100px); /* Full height minus footer */
+        }
+
+        /* --- Homepage: Hero Section --- */
+        .hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            padding: 20px;
+        }
+        .hero h1 {
+            color: #fff;
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Homepage: Search Bar --- */
+        .search-bar {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: -60px; /* Overlap the hero */
+            position: relative;
+            z-index: 10;
+        }
+        .search-bar form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .search-bar .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .search-bar label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .search-bar input,
+        .search-bar select {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .search-bar .btn {
+            width: 100%;
+            height: 48px;
+        }
+        
+        /* --- Restaurant Listing Page --- */
+        .listing-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+        .filter-sidebar {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        .filter-sidebar h3 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+        .filter-group h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+        .filter-group div {
+            margin-bottom: 0.5rem;
+        }
+        .filter-group label {
+            margin-left: 0.5rem;
+        }
+        
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* --- Restaurant Card --- */
+        .restaurant-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .restaurant-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-content {
+            padding: 1.5rem;
+        }
+        .card-content h3 {
+            margin-bottom: 0.5rem;
+        }
+        .card-content .cuisine {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        .card-content .location {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rating {
+            background: #22C55E; /* Green */
+            color: #fff;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .restaurant-card .btn {
+            padding: 10px 20px;
+        }
+        
+        /* --- Reservation Form Page --- */
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-group-full {
+                grid-column: 1 / -1; /* Span full width */
+            }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-container .btn {
+            width: 100%;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        
+        /* --- Confirmation Page --- */
+        .confirmation-box {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .confirmation-icon {
+            font-size: 4rem;
+            color: #22C55E; /* Green */
+        }
+        .confirmation-box h2 {
+            color: var(--dark-color);
+        }
+        .summary-card {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: left;
+            margin: 2rem 0;
+        }
+        .summary-card h4 {
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .summary-card p {
+            margin-bottom: 0.75rem;
+        }
+        .summary-card p strong {
+            display: inline-block;
+            width: 130px;
+            color: var(--dark-color);
+        }
+        
+        /* --- Footer --- */
+        .footer {
+            background: var(--dark-color);
+            color: #E5E7EB;
+            padding: 40px 0 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .footer p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="#" class="logo nav-link" data-page="home">BookMyTable</a>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="listing">Restaurants</a></li>
+                    <li><a href="#" class="nav-link" data-page="form">Book a Table</a></li>
+                    <li><a href="#" class="nav-link" data-page="reservations">My Reservations</a></li>
+                    <li><a href="#" class="btn btn-secondary">Login</a></li> 
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section id="page-home" class="page">
+            <div class="hero">
+                <h1>Reserve Your Table</h1>
+                <p>Anytime, Anywhere</p>
+                <button class="btn nav-link" data-page="form">Book Now</button>
+            </div>
+            
+            <div class="container">
+                <div class="search-bar">
+                    <form>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <select id="location" name="location">
+                                <option value="any">All Locations</option>
+                                <option value="hyd">Hyderabad</option>
+                                <option value="bgl">Bangalore</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cuisine">Cuisine</label>
+                            <select id="cuisine" name="cuisine">
+                                <option value="any">All Cuisines</option>
+                                <option value="indian">Indian</option>
+                                <option value="italian">Italian</option>
+                                <option value="chinese">Chinese</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="search-date">Date</label>
+                            <input type="date" id="search-date" name="date">
+                        </div>
+                        <button type="button" class="btn nav-link" data-page="listing">Search</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-listing" class="page">
+            <div class="container">
+                <h2>Available Restaurants</h2>
+                <div class="listing-layout">
+                    
+                    <aside class="filter-sidebar">
+                        <h3>Filter By</h3>
+                        <div class="filter-group">
+                            <h4>Cuisine</h4>
+                            <div><input type="checkbox" id="f-indian"> <label for="f-indian">Indian</label></div>
+                            <div><input type="checkbox" id="f-italian"> <label for="f-italian">Italian</label></div>
+                            <div><input type="checkbox" id="f-chinese"> <label for="f-chinese">Chinese</label></div>
+                            <div><input type="checkbox" id="f-continental"> <label for="f-continental">Continental</label></div>
+                        </div>
+                        <div class="filter-group">
+                            <h4>Price Range</h4>
+                            <div><input type="checkbox" id="f-price1"> <label for="f-price1">₹ (Low)</label></div>
+                            <div><input type="checkbox" id="f-price2"> <label for="f-price2">₹₹ (Medium)</label></div>
+                            <div><input type="checkbox" id="f-price3"> <label for="f-price3">₹₹₹ (High)</label></div>
+                        </div>
+                        <div class="filter-group">
+                            <h4>Rating</h4>
+                            <div><input type="radio" name="rating" id="r-4"> <label for="r-4">4★ & above</label></div>
+                            <div><input type="radio" name="rating" id="r-3"> <label for="r-3">3★ & above</label></div>
+                        </div>
+                    </aside>
+                    
+                    <div class="restaurant-grid">
+                        
+                        <div class="restaurant-card">
+                            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" alt="Restaurant 1">
+                            <div class="card-content">
+                                <h3>The Golden Spoon</h3>
+                                <p class="cuisine">Indian, Mughlai</p>
+                                <p class="location">Kondapur, Hyderabad</p>
+                                <div class="card-footer">
+                                    <span class="rating">4.5 ★</span>
+                                    <button class="btn nav-link" data-page="form">Book Table</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="restaurant-card">
+                            <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Restaurant 2">
+                            <div class="card-content">
+                                <h3>Bella Italia</h3>
+                                <p class="cuisine">Italian, Pizza</p>
+                                <p class="location">Banjara Hills, Hyderabad</p>
+                                <div class="card-footer">
+                                    <span class="rating">4.2 ★</span>
+                                    <button class="btn nav-link" data-page="form">Book Table</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="restaurant-card">
+                            <img src="https://images.unsplash.com/photo-1525610553991-2bede1a236e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Restaurant 3">
+                            <div class="card-content">
+                                <h3>Wok & Steam</h3>
+                                <p class="cuisine">Chinese, Pan-Asian</p>
+                                <p class="location">Gachibowli, Hyderabad</p>
+                                <div class="card-footer">
+                                    <span class="rating">4.0 ★</span>
+                                    <button class="btn nav-link" data-page="form">Book Table</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-form" class="page">
+            <div class="container">
+                <div class="form-container">
+                    <h2>Make a Reservation</h2>
+                    <form class="form-grid" id="reservationForm">
+                        <div class="form-group">
+                            <label for="res-name">Full Name</label>
+                            <input type="text" id="res-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-phone">Contact Number</label>
+                            <input type="tel" id="res-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-date">Date</label>
+                            <input type="date" id="res-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-time">Time</label>
+                            <input type="time" id="res-time" value="19:00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-people">Number of People</label>
+                            <input type="number" id="res-people" value="2" min="1" max="20" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-table">Table Type</label>
+                            <select id="res-table">
+                                <option>Indoor</option>
+                                <option>Outdoor</option>
+                                <option>Rooftop</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="res-requests">Special Requests</label>
+                            <textarea id="res-requests" placeholder="e.g., Birthday celebration, high chair..."></textarea>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <button type="submit" class="btn">Confirm Reservation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <section id="page-confirmation" class="page">
+            <div class="container">
+                <div class="confirmation-box">
+                    <div class="confirmation-icon">✅</div>
+                    <h2>Your table has been reserved!</h2>
+                    <p>A confirmation has been sent to your email.</p>
+                    
+                    <div class="summary-card">
+                        <h4>Reservation Summary</h4>
+                        <p><strong>Booking ID:</strong> <span id="conf-id">12345XYZ</span></p>
+                        <p><strong>Name:</strong> <span id="conf-name"></span></p>
+                        <p><strong>Date:</strong> <span id="conf-date"></span></p>
+                        <p><strong>Time:</strong> <span id="conf-time"></span></p>
+                        <p><strong>Guests:</strong> <span id="conf-people"></span></p>
+                    </div>
+                    
+                    <button class="btn nav-link" data-page="home">Back to Home</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-reservations" class="page">
+            <div class="container">
+                <h2>My Reservations</h2>
+                <p>This page would show a list of your past and upcoming reservations if you were logged in.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>
+                <strong>Team number - 15</strong><br>
+                G Samhitha Sharma - 2420030597<br>
+                S Jithyasri - 2420030586<br>
+                Nabil Rasool - 2420030408
+            </p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            const reservationForm = document.getElementById('reservationForm');
+            
+            // --- Page Navigation Logic ---
+            function showPage(pageId) {
+                // Hide all pages
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show the target page
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    window.scrollTo(0, 0); // Scroll to top
+                } else {
+                    console.error("Page not found: " + pageId);
+                }
+            }
+            
+            // Add click event listeners to all nav links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Stop the link from changing the URL
+                    
+                    // Get the page name from the 'data-page' attribute (e.g., "home")
+                    const pageName = link.getAttribute('data-page');
+                    
+                    // **FIX:** Only proceed if the link has a data-page attribute.
+                    // This prevents the "Login" button from causing an error.
+                    if (pageName) {
+                        // **FIX:** Construct the full page ID (e.g., "page-home")
+                        const pageId = 'page-' + pageName; 
+                        showPage(pageId);
+                    }
+                });
+            });
+            
+            // --- Form Submission Logic ---
+            reservationForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Stop the form from refreshing the page
+                
+                // 1. Get data from the form
+                const name = document.getElementById('res-name').value;
+                const date = document.getElementById('res-date').value;
+                const time = document.getElementById('res-time').value;
+                const people = document.getElementById('res-people').value;
+                
+                // 2. Populate the confirmation page
+                document.getElementById('conf-name').textContent = name;
+                document.getElementById('conf-date').textContent = date;
+                document.getElementById('conf-time').textContent = time;
+                document.getElementById('conf-people').textContent = people;
+                
+                // 3. Show the confirmation page (this ID is correct)
+                showPage('page-confirmation');
+                
+                // 4. Reset the form
+                reservationForm.reset();
+            });
+            
+            // --- Set default date for form ---
+            const dateInput = document.getElementById('res-date');
+            const searchDateInput = document.getElementById('search-date');
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (dateInput) {
+                dateInput.min = today;
+                dateInput.value = today;
+            }
+            if (searchDateInput) {
+                searchDateInput.min = today;
+                searchDateInput.value = today;
+            }
+
+            // Show the home page by default on load
+            showPage('page-home');
+        });
+    </script>
+
+</body>
+</html>
